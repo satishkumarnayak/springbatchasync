@@ -121,12 +121,25 @@ public class SpringBatchConfig {
   }
 
   @Bean
-  public Job asyncJob() {
-      JobBuilder jobBuilder = jobBuilderFactory.get("asyncJob");
-      jobBuilder.incrementer(new RunIdIncrementer());
-      FlowJobBuilder flowJobBuilder = jobBuilder.flow(asyncStep1()).end();
-      Job job = flowJobBuilder.build();
-      return job;
+  public Step nonasyncStep1() {
+      StepBuilder stepBuilder = stepBuilderFactory.get("nonasyncStep1");
+      SimpleStepBuilder<Employee, Employee> simpleStepBuilder = stepBuilder.chunk(10);
+      return simpleStepBuilder.reader(asyncreader()).processor(studentItemProcessor()).writer(writer()).build();
   }
-
+  
+  @Bean
+  public Job asyncJob() {
+    JobBuilder jobBuilder = jobBuilderFactory.get("asyncJob");
+    jobBuilder.incrementer(new RunIdIncrementer());
+    FlowJobBuilder flowJobBuilder = jobBuilder.flow(asyncStep1()).end();
+    Job job = flowJobBuilder.build();
+    return job;
+  }
+   
+  
+  /*
+   * @Bean public Job nonasyncJob() { JobBuilder jobBuilder = jobBuilderFactory.get("nonasyncJob");
+   * jobBuilder.incrementer(new RunIdIncrementer()); FlowJobBuilder flowJobBuilder =
+   * jobBuilder.flow(nonasyncStep1()).end(); Job job = flowJobBuilder.build(); return job; }
+   */
 }
